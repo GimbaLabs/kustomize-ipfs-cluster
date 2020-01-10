@@ -107,6 +107,8 @@ spec:
       - name: configure-script
         configMap:
           name: ipfs-cluster-set-bootstrap-conf
+        persistentVolumeClaim:
+          claimName: pv001
 
 
   volumeClaimTemplates:
