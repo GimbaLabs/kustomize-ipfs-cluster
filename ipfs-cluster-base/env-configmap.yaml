@@ -3,3 +3,4 @@ kind: ConfigMap
 metadata:
   name: env-config
 data:
+  bootstrap-peer-id: Qmagem2hrk82xeiM4MQVy7sCpt7Wmnvf7j3f7fm9nUCz3i
