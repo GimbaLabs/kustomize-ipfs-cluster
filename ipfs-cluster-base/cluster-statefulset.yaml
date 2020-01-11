@@ -13,6 +13,9 @@ spec:
       labels:
         app: ipfs-cluster
     spec:
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
       initContainers:
         - name: configure-ipfs
           image: "ipfs/go-ipfs:latest"
@@ -107,8 +110,6 @@ spec:
       - name: configure-script
         configMap:
           name: ipfs-cluster-set-bootstrap-conf
-        persistentVolumeClaim:
-          claimName: pv001
 
 
   volumeClaimTemplates:
