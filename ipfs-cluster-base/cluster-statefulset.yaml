@@ -4,7 +4,7 @@ metadata:
   name: ipfs-cluster
 spec:
   serviceName: ipfs-cluster
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: ipfs-cluster
@@ -13,9 +13,6 @@ spec:
       labels:
         app: ipfs-cluster
     spec:
-      tolerations:
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
       initContainers:
         - name: configure-ipfs
           image: "ipfs/go-ipfs:latest"
