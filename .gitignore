@@ -1,0 +1,5 @@
+.env*
+overlays/**/env-configmap.yaml
+overlays/**/secret.yaml
+overlays/**/output.yaml
+.ipfs*

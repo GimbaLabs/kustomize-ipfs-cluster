@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ipfs-cluster
+spec:
+  volumeClaimTemplates:
+    - metadata:
+        name: cluster-storage
+      spec:
+        storageClassName: scw-bssd
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: ipfs-storage
+      spec:
+        storageClassName: scw-bssd
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5100Mi

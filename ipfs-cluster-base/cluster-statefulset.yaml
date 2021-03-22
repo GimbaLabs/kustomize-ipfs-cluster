@@ -15,7 +15,7 @@ spec:
     spec:
       initContainers:
         - name: configure-ipfs
-          image: "ipfs/go-ipfs:latest"
+          image: "ipfs/go-ipfs:v0.4.18"
           command: ["sh", "/custom/configure-ipfs.sh"]
           volumeMounts:
             - name: ipfs-storage
@@ -24,7 +24,7 @@ spec:
               mountPath: /custom
       containers:
         - name: ipfs
-          image: "ipfs/go-ipfs:cluster-k8s"
+          image: "ipfs/go-ipfs:v0.4.18"
           imagePullPolicy: IfNotPresent
           env:
             - name: IPFS_FD_MAX
@@ -60,11 +60,16 @@ spec:
             {}
         - name: ipfs-cluster
           image: "ipfs/ipfs-cluster:latest"
-          command: ["sh", "/custom/cluster-entrypoint.sh"]
+          command: ["sh", "/custom/entrypoint.sh"]
           envFrom:
             - configMapRef:
                 name: env-config
           env:
+            - name: BOOTSTRAP_PEER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config
+                  key: bootstrap-peer-id
             - name: BOOTSTRAP_PEER_PRIV_KEY
               valueFrom:
                 secretKeyRef:
@@ -127,4 +132,4 @@ spec:
         persistentVolumeReclaimPolicy: Retain
         resources:
           requests:
-            storage: 200Gi
+            storage: 10Gi

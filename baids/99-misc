@@ -1,0 +1,51 @@
+#!/bin/bash
+
+function kustomize-ipfs-init() {
+
+  IPFS_KEY_TEMP_FILE=/tmp/ipfs-key
+  UNAME=$(uname -s)
+  case "${UNAME}" in
+    Darwin*)  B64_ARGS="-b 0";;
+    Linux*)   B64_ARGS="-w 0";;
+  esac
+
+}
+
+function kustomize-ipfs-generate-ipfs-key() {
+
+  kustomize-ipfs-init
+
+  docker run -it --rm \
+    -v ${PWD}:/output \
+    --entrypoint=sh \
+    belaytzev/ipfs-key -c 'ipfs-key 2> /output/.ipfs-id | base64 | xargs echo | sed "s| ||g" > /output/.ipfs-key.b64'
+
+}
+
+function kustomize-ipfs-generate-env-file() {
+
+  OVERLAY=$1 && test -z ${OVERLAY} && OVERLAY=local
+
+  kustomize-ipfs-init
+  kustomize-ipfs-generate-ipfs-key
+
+  cat > .env.${OVERLAY} <<EOF
+export IPFS_CLUSTER_SECRET="$(od  -vN 32 -An -tx1 /dev/urandom | tr -d ' \n' | base64 ${B64_ARGS} -)"
+export IPFS_BOOTSTRAP_PEER_ID="$(grep ^ID ${PWD}/.ipfs-id | sed 's|^ID.*: \(.*\)|\1|')"
+export IPFS_BOOTSTRAP_PEER_PRIV_KEY="$(cat ${PWD}/.ipfs-key.b64 | base64 ${B64_ARGS} -)"
+EOF
+
+}
+
+function kustomize-ipfs-render-overlay() {
+
+  OVERLAY=$1 && test -z ${OVERLAY} && OVERLAY=local
+
+  source .env.${OVERLAY}
+
+  envsubst < overlays/${OVERLAY}/templates/patches/env-configmap.yaml.tpl > overlays/${OVERLAY}/patches/env-configmap.yaml
+  envsubst < overlays/${OVERLAY}/templates/resources/secret.yaml.tpl > overlays/${OVERLAY}/resources/secret.yaml
+  
+  kustomize build overlays/${OVERLAY} > overlays/${OVERLAY}/output.yaml
+
+}
